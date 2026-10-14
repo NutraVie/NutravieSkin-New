@@ -8,7 +8,7 @@ export const site = {
   shipping: 35,
   currency: 'MAD',
   deliveryDelay: '24-48',
-  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP ?? '',
+  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP || '212708502263',
   email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? '',
 };
 

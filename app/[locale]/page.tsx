@@ -4,9 +4,10 @@ import { Faq, faqLd } from '@/components/Faq';
 import { JsonLd } from '@/components/JsonLd';
 import { Photo } from '@/components/Photo';
 import { ProductCard } from '@/components/ProductCard';
+import { Routines } from '@/components/Routines';
 import { dict } from '@/lib/dict';
 import { posts } from '@/lib/posts';
-import { packProduct, products, singleProducts } from '@/lib/products';
+import { packProduct, products } from '@/lib/products';
 import { abs, pageMeta } from '@/lib/seo';
 import { price, site, type Locale } from '@/lib/site';
 
@@ -23,8 +24,6 @@ export default async function Home({ params }: Props) {
   const t = dict[locale];
   const h = t.home;
   const faqItems = t.faq.items.slice(0, 4);
-  // ترتيب الروتين: غسول، واقي شمس، كريم الليل
-  const steps = singleProducts;
 
   return (
     <>
@@ -34,7 +33,7 @@ export default async function Home({ params }: Props) {
           '@type': 'Organization',
           name: site.name,
           url: site.url,
-          logo: abs('/icon.svg'),
+          logo: abs('/images/logo-512.png'),
           description: t.tagline,
           areaServed: 'MA',
         }}
@@ -66,24 +65,11 @@ export default async function Home({ params }: Props) {
         </div>
       </section>
 
-      <section className="steps">
+      <section className="steps" id="routine">
         <div className="wrap">
-          <h2>{h.stepsTitle}</h2>
-          <p className="section-lead">{h.stepsLead}</p>
-          <ol className="steps-list">
-            {steps.map((p, i) => (
-              <li key={p.slug}>
-                <span className="step-num" aria-hidden="true">{i + 1}</span>
-                <div>
-                  <span className="step-when">{p.step?.[locale]}</span>
-                  <h3>
-                    <Link href={`/${locale}/produits/${p.slug}`}>{p.name[locale]}</Link>
-                  </h3>
-                  <p>{p.short[locale]}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
+          <h2>{t.routine.title}</h2>
+          <p className="section-lead">{t.routine.lead}</p>
+          <Routines locale={locale} heading="h3" />
         </div>
       </section>
 

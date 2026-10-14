@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { dict } from '@/lib/dict';
 import { products } from '@/lib/products';
+import { skinTypes } from '@/lib/skin';
 import { site, type Locale } from '@/lib/site';
 import { Logo } from './Logo';
 
@@ -10,7 +11,7 @@ export function Footer({ locale }: { locale: Locale }) {
     <footer className="site-footer">
       <div className="wrap footer-grid">
         <div>
-          <Logo size={44} />
+          <Logo light />
           <p className="footer-tag">{t.tagline}</p>
         </div>
         <div>
@@ -24,9 +25,18 @@ export function Footer({ locale }: { locale: Locale }) {
           </ul>
         </div>
         <div>
-          <h2>{t.footer.help}</h2>
+          <h2>{t.skin.nav}</h2>
+          <ul>
+            {skinTypes.map((s) => (
+              <li key={s.slug}><Link href={`/${locale}/peau/${s.slug}`}>{s.name[locale]}</Link></li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h2>{t.footer.brand}</h2>
           <ul>
             <li><Link href={`/${locale}/livraison`}>{t.delivery.title}</Link></li>
+            <li><Link href={`/${locale}/retours`}>{t.returns.title}</Link></li>
             <li><Link href={`/${locale}/faq`}>{t.faq.title}</Link></li>
             <li><Link href={`/${locale}/blog`}>{t.nav.blog}</Link></li>
             <li><Link href={`/${locale}/a-propos`}>{t.nav.about}</Link></li>

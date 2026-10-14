@@ -63,41 +63,51 @@ export async function POST(req: Request) {
     total,
   };
 
-  const delivered = await deliver(order);
+  const message = [
+    `طلب جديد ${id}`,
+    ...items.map((i) => `${i.qty} × ${i.product.name.ar} (${i.product.price} درهم)`),
+    `التوصيل: ${site.shipping} درهم`,
+    `المجموع: ${total} درهم (الدفع عند الاستلام)`,
+    `الاسم: ${customer.name}`,
+    `الهاتف: ${customer.phone}`,
+    `المدينة: ${customer.city}`,
+    `العنوان: ${customer.address}`,
+    customer.note ? `ملاحظة: ${customer.note}` : '',
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  const delivered = await deliver(order, message);
   if (!delivered) {
     console.error('Order not delivered: no working channel configured', id);
     return NextResponse.json({ error: 'unavailable' }, { status: 503 });
   }
-  return NextResponse.json({ id, total });
+  return NextResponse.json({ id, total, message });
 }
 
-type Order = { id: string; customer: { name: string; phone: string | null; city: string; address: string; note: string }; items: { name: string; qty: number; unit: number }[]; subtotal: number; shipping: number; total: number };
-
-async function deliver(order: Order): Promise<boolean> {
+async function deliver(order: unknown, message: string): Promise<boolean> {
   const jobs: Promise<boolean>[] = [];
-  const { TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, ORDERS_WEBHOOK_URL } = process.env;
+  const { TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, ORDERS_WEBHOOK_URL, CALLMEBOT_APIKEY } = process.env;
+  const whatsapp = site.whatsapp;
 
+  if (whatsapp && CALLMEBOT_APIKEY) {
+    const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent('+' + whatsapp)}&text=${encodeURIComponent(message)}&apikey=${encodeURIComponent(CALLMEBOT_APIKEY)}`;
+    jobs.push(fetch(url).then((r) => r.ok).catch(() => false));
+  }
   if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
-    const text = [
-      `Nouvelle commande ${order.id}`,
-      ...order.items.map((i) => `${i.qty} × ${i.name} (${i.unit} DH)`),
-      `Total: ${order.total} DH (livraison ${order.shipping} DH incluse)`,
-      order.customer.name,
-      order.customer.phone ?? '',
-      `${order.customer.city}, ${order.customer.address}`,
-      order.customer.note ? `Note: ${order.customer.note}` : '',
-    ].filter(Boolean).join('\n');
-    jobs.push(post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text }));
+    jobs.push(post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { chat_id: TELEGRAM_CHAT_ID, text: message }));
   }
   if (ORDERS_WEBHOOK_URL) jobs.push(post(ORDERS_WEBHOOK_URL, order));
 
-  if (!jobs.length && process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production') {
     await mkdir('.data', { recursive: true });
     await appendFile('.data/orders.jsonl', JSON.stringify(order) + '\n');
-    return true;
   }
   const results = await Promise.all(jobs);
-  return results.some(Boolean);
+  if (results.some(Boolean)) return true;
+  // بلا قناة أوتوماتيكية: الكليان هو اللي كيصيفط الرسالة الجاهزة فالواتساب
+  if (whatsapp) return true;
+  return process.env.NODE_ENV !== 'production';
 }
 
 async function post(url: string, payload: unknown) {

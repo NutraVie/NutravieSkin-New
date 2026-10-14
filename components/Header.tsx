@@ -9,6 +9,7 @@ export function Header({ locale }: { locale: Locale }) {
   const links = [
     { href: `/${locale}#produits`, label: t.nav.products },
     { href: `/${locale}/produits/routine-complete`, label: t.nav.routine },
+    { href: `/${locale}#routine`, label: t.skin.nav },
     { href: `/${locale}/livraison`, label: t.nav.delivery },
     { href: `/${locale}/blog`, label: t.nav.blog },
     { href: `/${locale}/faq`, label: t.nav.faq },

@@ -6,6 +6,7 @@ import { Faq, faqLd } from '@/components/Faq';
 import { JsonLd } from '@/components/JsonLd';
 import { Photo } from '@/components/Photo';
 import { ProductCard } from '@/components/ProductCard';
+import { Routines } from '@/components/Routines';
 import { dict } from '@/lib/dict';
 import { getProduct, packProduct, products } from '@/lib/products';
 import { abs, pageMeta } from '@/lib/seo';
@@ -140,9 +141,12 @@ export default async function ProductPage({ params }: Props) {
         ) : null}
         <section>
           <h2>{tp.ingredients}</h2>
-          <ul className="tags tags-big">
+          <ul className="ingredients">
             {p.ingredients[locale].map((i) => (
-              <li key={i}>{i}</li>
+              <li key={i.n}>
+                <strong>{i.n}</strong>
+                <span>{i.d}</span>
+              </li>
             ))}
           </ul>
         </section>
@@ -154,6 +158,20 @@ export default async function ProductPage({ params }: Props) {
             ))}
           </ol>
         </section>
+        <section>
+          <h2>{tp.notes}</h2>
+          <ul className="plain-list">
+            {p.notes[locale].map((n) => (
+              <li key={n}>{n}</li>
+            ))}
+          </ul>
+        </section>
+        {p.kind === 'pack' ? (
+          <section className="routine-box">
+            <h2>{t.routine.title}</h2>
+            <Routines locale={locale} heading="h3" />
+          </section>
+        ) : null}
         <section>
           <h2>{tp.faq}</h2>
           <Faq items={p.faq[locale]} />

@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useCart } from '@/lib/cart';
 import { dict } from '@/lib/dict';
 import { getProduct } from '@/lib/products';
-import { price, type Locale } from '@/lib/site';
+import { price, site, type Locale } from '@/lib/site';
 import { normalizePhone } from '@/lib/validate';
 import { Totals } from './CartView';
 
@@ -55,13 +55,39 @@ export function CheckoutForm({ locale }: { locale: Locale }) {
         body: JSON.stringify({ items: lines, customer, payment: 'cod', locale, website: get('website') }),
       });
       if (!res.ok) throw new Error(String(res.status));
-      const data = (await res.json()) as { id: string; total: number };
+      const data = (await res.json()) as { id: string; total: number; message?: string };
       try {
         sessionStorage.setItem('nutravie-last-order', JSON.stringify(data));
       } catch {}
       router.push(`/${locale}/commande/merci`);
       clear();
     } catch {
+      // السيرفر ما جاوبش: كنصيفطو الطلب مباشرة فالواتساب باش ما يضيعش
+      if (site.whatsapp) {
+        const id = `NV-W${Date.now().toString(36).toUpperCase()}`;
+        const subtotal = lines.reduce((t, l) => t + (getProduct(l.slug)?.price ?? 0) * l.qty, 0);
+        const total = subtotal + site.shipping;
+        const message = [
+          `طلب جديد ${id}`,
+          ...lines.map((l) => {
+            const p = getProduct(l.slug)!;
+            return `${l.qty} × ${p.name.ar} (${p.price} درهم)`;
+          }),
+          `التوصيل: ${site.shipping} درهم`,
+          `المجموع: ${total} درهم (الدفع عند الاستلام)`,
+          `الاسم: ${customer.name}`,
+          `الهاتف: ${normalizePhone(customer.phone)}`,
+          `المدينة: ${customer.city}`,
+          `العنوان: ${customer.address}`,
+          customer.note ? `ملاحظة: ${customer.note}` : '',
+        ].filter(Boolean).join('\n');
+        try {
+          sessionStorage.setItem('nutravie-last-order', JSON.stringify({ id, total, message }));
+        } catch {}
+        router.push(`/${locale}/commande/merci`);
+        clear();
+        return;
+      }
       setSending(false);
       setErrors({ send: c.errSend });
     }

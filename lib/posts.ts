@@ -1,4 +1,5 @@
 import type { Locale } from './site';
+import { extraPosts } from './posts-extra';
 
 type L<T = string> = Record<Locale, T>;
 type Section = { h: string; p: string[] };
@@ -7,12 +8,13 @@ export type Post = {
   slug: string;
   date: string;
   product: string;
+  skin?: string;
   title: L;
   description: L;
   sections: L<Section[]>;
 };
 
-export const posts: Post[] = [
+const basePosts: Post[] = [
   {
     slug: 'ordre-routine-soin-visage',
     date: '2026-10-10',
@@ -30,12 +32,14 @@ export const posts: Post[] = [
         { h: 'لماذا يهم الترتيب؟', p: ['كل منتج يؤدي دورا مختلفا. المنظف يهيئ البشرة، الكريم يغذيها، وواقي الشمس يحميها. إذا تغير الترتيب، يقل مفعول المنتجات.', 'القاعدة العامة: نبدأ بالتنظيف، وننتهي بالحماية في النهار وبالتغذية في الليل.'] },
         { h: 'روتين الصباح', p: ['اغسلي وجهك بغسول لطيف لإزالة الدهون التي تراكمت خلال الليل.', 'اختمي بواقي الشمس، حتى في الأيام الغائمة وحتى إن بقيت في البيت قرب النافذة. واقي الشمس دائما آخر خطوة.'] },
         { h: 'روتين المساء', p: ['نظفي وجهك جيدا لإزالة واقي الشمس والغبار وآثار اليوم.', 'ضعي كريم الليل على بشرة نظيفة وجافة. الليل هو الوقت الذي تجدد فيه البشرة نفسها.'] },
+        { h: 'حسب نوع البشرة', p: ['البشرة الدهنية المعرضة للحبوب تستعمل الغسول صباحا ومساء. البشرة الجافة تكتفي بالغسول في المساء، وتبدأ يومها بواقي الشمس مباشرة.', 'إذا كانت بشرتك حساسة وكان كريم الليل يحتوي على الريتينول، ابدئي به ليلة نعم وليلة لا خلال الأسبوع الأول.'] },
         { h: 'أخطاء شائعة', p: ['استعمال منتجات كثيرة دفعة واحدة. روتين قصير تواظبين عليه أفضل من روتين طويل تتركينه بعد أسبوع.', 'نسيان واقي الشمس في الشتاء، وفرك الوجه بقوة عند التنظيف.'] },
       ],
       fr: [
         { h: "Pourquoi l'ordre compte", p: ["Chaque soin a un rôle. Le nettoyant prépare la peau, la crème la nourrit, l'écran solaire la protège. Dans le désordre, les produits sont moins efficaces.", 'La règle : on commence par nettoyer, on termine par protéger le jour et par nourrir la nuit.'] },
         { h: 'La routine du matin', p: ["Lavez le visage avec un gel doux pour retirer le sébum accumulé pendant la nuit.", "Terminez par l'écran solaire, même par temps couvert et même à l'intérieur près d'une fenêtre. L'écran solaire est toujours la dernière étape."] },
         { h: 'La routine du soir', p: ["Nettoyez bien le visage pour retirer l'écran solaire, la poussière et les traces de la journée.", "Appliquez la crème de nuit sur peau propre et sèche. La nuit est le moment où la peau se régénère."] },
+        { h: 'Selon le type de peau', p: ["La peau grasse à tendance acnéique utilise le gel matin et soir. La peau sèche garde le gel pour le soir et commence la journée directement par l'écran solaire.", 'Si votre peau est sensible et que la crème de nuit contient du rétinol, commencez un soir sur deux pendant la première semaine.'] },
         { h: 'Les erreurs courantes', p: ["Utiliser trop de produits à la fois. Une routine courte que l'on garde vaut mieux qu'une routine longue abandonnée au bout d'une semaine.", "Oublier l'écran solaire en hiver, et frotter le visage trop fort au nettoyage."] },
       ],
     },
@@ -68,6 +72,8 @@ export const posts: Post[] = [
     },
   },
 ];
+
+export const posts: Post[] = [...extraPosts, ...basePosts];
 
 export function getPost(slug: string) {
   return posts.find((p) => p.slug === slug);

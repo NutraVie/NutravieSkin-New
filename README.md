@@ -17,17 +17,19 @@
 
 ## استقبال الطلبات
 
-نسخ `.env.example` إلى `.env.local` وعمّر واحد على الأقل:
+نسخ `.env.example` إلى `.env.local`:
 
-- `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`: كل طلب كيوصلك فتيليغرام
-- `ORDERS_WEBHOOK_URL`: كيصيفط الطلب JSON (Google Sheets عبر Apps Script، Make، Zapier)
+- `NEXT_PUBLIC_WHATSAPP` (الرقم بصيغة دولية بلا +): من بعد تأكيد الطلب، الواتساب كيتحل عند الكليان برسالة فيها الطلب كامل، وكيضغط إرسال.
+- `CALLMEBOT_APIKEY` (اختياري): السيرفر كيصيفط ليك الطلب فالواتساب أوتوماتيكيا عبر CallMeBot، بلا ما يحتاج الكليان يضغط.
+- `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` أو `ORDERS_WEBHOOK_URL` (اختياري): نسخة ثانية من كل طلب.
 
 فالتجربة المحلية بلا إعدادات، الطلبات كتسجل ف `.data/orders.jsonl`.
-فالإنتاج بلا إعدادات، الطلب كيترفض (503) باش ما يضيعش بلا ما تعرف.
+فالإنتاج بلا حتى إعداد، الطلب كيترفض (503) باش ما يضيعش بلا ما تعرف.
 
-## النشر
+## النشر على Netlify
 
-1. حط الكود ف GitHub ثم استوردو ف Vercel.
-2. زيد المتغيرات ديال `.env.example` ف Vercel.
-3. ربط `www.nutravie.ma` من إعدادات الدومين.
-4. زيد السيت ف Google Search Console وصيفط `https://www.nutravie.ma/sitemap.xml`.
+1. حط الكود ف GitHub (ريبو خاص ولا عام).
+2. ف Netlify: Add new project، Import from GitHub، اختار الريبو. الإعدادات كيتقراو من `netlify.toml`.
+3. ف Environment variables زيد `CALLMEBOT_APIKEY` (و `ORDERS_WEBHOOK_URL` إلا خدمتي ب Google Sheets).
+4. ف Domain management زيد `www.nutravie.ma` وخليه هو الأساسي، وحط سجلات DNS اللي كيعطيك Netlify عند اللي شريتي عندو الدومين.
+5. زيد السيت ف Google Search Console وصيفط `https://www.nutravie.ma/sitemap.xml`.

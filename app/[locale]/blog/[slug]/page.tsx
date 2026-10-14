@@ -6,6 +6,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { dict } from '@/lib/dict';
 import { getPost, posts } from '@/lib/posts';
 import { getProduct } from '@/lib/products';
+import { getSkin } from '@/lib/skin';
 import { abs, pageMeta } from '@/lib/seo';
 import { locales, site, type Locale } from '@/lib/site';
 
@@ -30,6 +31,7 @@ export default async function PostPage({ params }: Props) {
   if (!post) notFound();
   const t = dict[locale];
   const product = getProduct(post.product);
+  const skin = post.skin ? getSkin(post.skin) : undefined;
   return (
     <div className="wrap page narrow">
       <JsonLd
@@ -61,6 +63,11 @@ export default async function PostPage({ params }: Props) {
           </section>
         ))}
       </article>
+      {skin ? (
+        <p>
+          <Link href={`/${locale}/peau/${skin.slug}`} className="text-link">{t.skin.see}: {skin.name[locale]}</Link>
+        </p>
+      ) : null}
       {product ? (
         <div className="post-product">
           <ProductCard product={product} locale={locale} />
